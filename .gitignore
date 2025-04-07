@@ -50,3 +50,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+firmware*
+src/framework/generated_ch32v003.ld
