@@ -277,8 +277,6 @@ void __attribute__((noinline, used, section(".topflash.text"))) flashWrite(uint3
 
 static void __attribute__((section(".topflash.text"))) userSelectProg(volatile uint16_t * addr, uint16_t val)
 {
-    // uint32_t t;
-
     flashUnlock();
     flashUnlockOBKEYR();
 
@@ -292,9 +290,6 @@ static void __attribute__((section(".topflash.text"))) userSelectProg(volatile u
     flashEOP();
 
     *addr = val;
-
-    // t = *FLASH_OBR & (0xff << 10);
-    // t = *FLASH_OBR & (0xff << 18);
 
     *FLASH_CTLR &= ~FLASH_OBG_BIT;
 }
@@ -311,8 +306,6 @@ int __attribute__((section(".topflash.text"))) flashReadProtect()
 
 int __attribute__((section(".topflash.text"))) flashReadUnprotect()
 {
-    // uint32_t t;
-
     if (FLASH_RDPR)
     {
         // 1
@@ -337,17 +330,14 @@ int __attribute__((section(".topflash.text"))) flashReadUnprotect()
 
         *RDPR = 1;
 
-        // t = *FLASH_OBR & (0xff << 10);
         *FLASH_OBR &= ~(0xff << 10);
 
-        // t = *FLASH_OBR & (0xff << 18);
         *FLASH_OBR &= ~(0xff << 18);
 
         // 7
         *FLASH_CTLR &= ~FLASH_OBER_BIT;
 
         userSelectProg(RDPR, RDPR_OFF);
-        // _flashReadUnprotect();
     }
 
     return 0;
