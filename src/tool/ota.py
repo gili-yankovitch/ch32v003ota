@@ -12,6 +12,7 @@ key = bytes([ x for x in range(AES.block_size) ])
 
 DEBUG = False
 
+SERPORT = "/dev/ttyUSB0"
 START_OFFSET = 0x1000
 END_OFFSET = 0x4000
 HEADER_SIZE = 8
@@ -25,7 +26,7 @@ def pad(x, m):
     return x + bytes([p] * p)
 
 def conn():
-    return serial.Serial("/dev/ttyUSB0",
+    return serial.Serial(SERPORT,
                     baudrate = 115200,
                     parity = serial.PARITY_NONE,
                     stopbits = serial.STOPBITS_ONE,
@@ -63,7 +64,7 @@ def prepare_image(filename):
         else:
             return f.read()[START_OFFSET:END_OFFSET]
 
-def main(filename):
+def generate(filename):
     if not os.path.exists(filename):
         print(f"OTA File {filename} does not exist.")
 
@@ -80,10 +81,19 @@ def main(filename):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     ciphertext = cipher.encrypt(plaintext)
 
+    with open(f"{filename}.enc", "wb") as f:
+        f.write(ciphertext)
+
+    print(f"Generated {filename}.enc")
+
+def flash(filename):
+    with open(filename, "rb") as f:
+        ciphertext = f.read()
+
     # Open a serial connection to the device
     c = conn()
 
-    print("Flashing...")
+    print(f"Flashing {filename}...")
 
     bar = progressbar.ProgressBar(maxval=len(ciphertext), \
         widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
@@ -115,7 +125,16 @@ def main(filename):
         print(f"Exception on {i}/{len(ciphertext)}")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Sword of Secrets OTA Update")
+    parser.add_argument("--generate", action = "store_true", help = "Generate an encrypted update file from a 'firmware.bin' file")
+    parser.add_argument("--flash", action = "store_true", help = "Flash a firmware file to device")
     parser.add_argument("filename", help = "Update file path")
     args = parser.parse_args()
 
-    main(args.filename)
+    if (not args.generate and not args.flash) or (args.generate and args.flash):
+        parser.print_usage()
+        exit(1)
+
+    if args.generate:
+        generate(args.filename)
+    elif args.flash:
+        flash(args.filename)
