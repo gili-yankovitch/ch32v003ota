@@ -5,6 +5,7 @@
 #include <uart.h>
 #include <ota.h>
 #include <prot.h>
+#include <otakey.h>
 
 #define RESET_MAX_JIFFIES 10000000
 #define FLASH_ADDR 0x08000000
@@ -13,12 +14,6 @@
 #define OTA_END_ADDR   0x4000
 
 static uint8_t iv[AES_BLOCKLEN] = { 0 };
-static const uint8_t __attribute__(( used, section(".topflash.rodata") )) k[AES_BLOCKLEN] = {
-                0x0, 0x1, 0x2, 0x3,
-                0x4, 0x5, 0x6, 0x7,
-                0x8, 0x9, 0xa, 0xb,
-                0xc, 0xd, 0xe, 0xf
-            };
 
 static struct AES_ctx ctx;
 static const uint8_t __attribute__(( used, section(".topflash.rodata") )) status[] = "VMCSE";

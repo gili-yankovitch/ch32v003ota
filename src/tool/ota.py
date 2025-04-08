@@ -6,9 +6,9 @@ import progressbar
 import argparse
 import os
 import serial
+from otakey import key
 
 iv = bytes([ 0 ] * AES.block_size)
-key = bytes([ x for x in range(AES.block_size) ])
 
 DEBUG = False
 
