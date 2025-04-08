@@ -90,7 +90,7 @@ int  __attribute__(( used, section(".main") )) main()
 
     for (;;)
     {
-#if 0
+#if 1
         printf("Flashing test...\r\n");
 
         Delay_Ms(1000);
@@ -100,7 +100,6 @@ int  __attribute__(( used, section(".main") )) main()
         funDigitalWrite(PC3, FUN_LOW);
         Delay_Ms(1000);
 #endif
-        // handleRequest();
     }
 
     return 0;

@@ -75,7 +75,6 @@ def main(filename):
     chunks = [ chunk(data, START_OFFSET + addr, len(data)) for addr in range(0, len(data), CHUNK_SIZE) ]
 
     # Encrypt it all in one go
-    # plaintext = pad(b"".join(chunks), TOTAL_SIZE)
     plaintext = b"".join(chunks)
 
     cipher = AES.new(key, AES.MODE_CBC, iv)
