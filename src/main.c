@@ -7,9 +7,6 @@
 #include <uart.h>
 #include <ota.h>
 
-#define FLASH_OBR ((volatile uint32_t *)0x4002201C)
-#define FLASH_RDPR (*FLASH_OBR & (1 << 1))
-
 static int readAnalog()
 {
     return SysTick->CNT ^ GPIO_analogRead(GPIOv_from_PORT_PIN(GPIO_port_D, 3));
@@ -70,7 +67,7 @@ static void cryptoTest()
     aesTest();
 }
 
-int  __attribute__(( used, section(".main") )) main()
+int main()
 {
     // Enable GPIOs
     funGpioInitAll();
@@ -83,22 +80,38 @@ int  __attribute__(( used, section(".main") )) main()
 
     // Optional: For blinking LED
     funPinMode(PC3, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-
+#if 0
+    funPinMode(PC1, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(PC2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(PC4, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(PD3, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(PD4, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+#endif
     cryptoTest();
 
     flashReadProtect();
 
     for (;;)
     {
-#if 1
+#if 0
         printf("Flashing test...\r\n");
 
         Delay_Ms(1000);
 #else
+#if 0
+        funDigitalWrite(PC1, FUN_HIGH);
+        funDigitalWrite(PC2, FUN_HIGH);
+        funDigitalWrite(PC4, FUN_HIGH);
+        funDigitalWrite(PD2, FUN_HIGH);
+        funDigitalWrite(PD3, FUN_HIGH);
+        funDigitalWrite(PD4, FUN_HIGH);
+#else
         funDigitalWrite(PC3, FUN_HIGH);
-        Delay_Ms(1000);
+        Delay_Ms(100);
         funDigitalWrite(PC3, FUN_LOW);
-        Delay_Ms(1000);
+        Delay_Ms(100);
+#endif
 #endif
     }
 

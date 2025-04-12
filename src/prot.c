@@ -19,6 +19,7 @@
 #define FLASH_KEY2 0xCDEF89AB
 #endif
 
+#define WRITE_BLOCK_SIZE 64
 #define FLASH_ADDR ((volatile uint32_t *)0x40022014)
 #define FLASH_OBR ((volatile uint32_t *)0x4002201C)
 #define FLASH_RDPR (*FLASH_OBR & (1 << 1))
@@ -150,8 +151,6 @@ void __attribute__((section(".topflash.text"))) flashRead(uint32_t addr, void * 
 {
     memcpy(pdata, (void *)addr, len);
 }
-
-#define WRITE_BLOCK_SIZE 64
 
 void __attribute__((section(".topflash.text"))) _flashWrite(uint32_t addr, uint32_t * data)
 {

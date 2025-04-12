@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <ch32v003fun.h>
 
-int errno;
+int __attribute__(( section(".bootloader.data") )) errno;
 
 int mini_vsnprintf(char *buffer, unsigned int buffer_len, const char *fmt, va_list va);
 int mini_vpprintf(int (*puts)(char* s, int len, void* buf), void* buf, const char *fmt, va_list va);
@@ -904,11 +904,8 @@ void InterruptVectorDefault()
 
 void __attribute__(( section(".topflash.text") )) handle_reset()
 {
+    // Load GP and SP from memory map
 	asm volatile( "\n\
-.option push\n\
-.option norelax\n\
-	la gp, __global_pointer$\n\
-.option pop\n\
 	la sp, _eusrstack\n"
 #if __GNUC__ > 10
 ".option arch, +zicsr\n"
@@ -922,10 +919,36 @@ void __attribute__(( section(".topflash.text") )) handle_reset()
 	csrw mtvec, a0\n" 
 	: : : "a0", "a3", "memory");
 
+#if defined( FUNCONF_SYSTICK_USE_HCLK ) && FUNCONF_SYSTICK_USE_HCLK
+	SysTick->CTLR = 5;
+#else
+	SysTick->CTLR = 1;
+#endif
+
+	// set mepc to be main as the root app.
+asm volatile(
+"	csrw mepc, %[boot]\n"
+"	mret\n" : : [boot]"r"(boot) );
+}
+
+int main() __attribute__((used));
+
+void __attribute__(( used, section(".main") )) _startup()
+{
 	// Careful: Use registers to prevent overwriting of self-data.
 	// This clears out BSS.
-asm volatile(
-"	la a0, _sbss\n\
+	// Zero out BSS
+#if 0
+asm volatile( "\n\
+.option push\n\
+.option norelax\n\
+	la gp, __global_pointer$\n\
+.option pop\n\
+"
+    : : : "a0");
+#endif
+asm volatile( "\n\
+	la a0, _sbss\n\
 	la a1, _ebss\n\
 	li a2, 0\n\
 	bge a0, a1, 2f\n\
@@ -953,18 +976,7 @@ asm volatile(
 : : : "a0", "a1", "a2", "a3", "memory"
 #endif
 );
-
-
-#if defined( FUNCONF_SYSTICK_USE_HCLK ) && FUNCONF_SYSTICK_USE_HCLK
-	SysTick->CTLR = 5;
-#else
-	SysTick->CTLR = 1;
-#endif
-
-	// set mepc to be main as the root app.
-asm volatile(
-"	csrw mepc, %[boot]\n"
-"	mret\n" : : [boot]"r"(boot) );
+    main();
 }
 
 #elif defined(CH32V10x) || defined(CH32V20x) || defined(CH32V30x)
@@ -973,7 +985,7 @@ void Init() 				   __attribute((section(".init"))) __attribute((used));
 void InterruptVector()         __attribute__((naked)) __attribute((section(".vector"))) __attribute((weak,alias("InterruptVectorDefault")));
 void InterruptVectorDefault()  __attribute__((naked)) __attribute((section(".vector")));
 
-// GY: void handle_reset( void ) __attribute__((section(".text.handle_reset")));
+// GY: void _handle_reset( void ) __attribute__((section(".text.handle_reset")));
 
 void Init()
 {

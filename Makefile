@@ -78,7 +78,7 @@ flash : $(TARGET).bin
 	$(FLASH_COMMAND)
 
 clean :
-	rm -rf $(TARGET).elf $(TARGET).bin $(TARGET).hex $(TARGET).lst $(TARGET).map $(TARGET).hex src/*.o ext/tiny-aes-c/*.o|| true
+	rm -rf $(TARGET).elf $(TARGET).bin $(TARGET).hex $(TARGET).lst $(TARGET).map $(TARGET).hex src/*.o ext/tiny-aes-c/*.o src/framework/generated_ch32v003.ld || true
 
 erase :
 	$(MINICHLINK) -p

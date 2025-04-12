@@ -12,7 +12,7 @@ iv = bytes([ 0 ] * AES.block_size)
 
 DEBUG = False
 
-SERPORT = "/dev/ttyUSB0"
+SERPORT = "/dev/ttyUSB1"
 START_OFFSET = 0x1000
 END_OFFSET = 0x4000
 HEADER_SIZE = 8

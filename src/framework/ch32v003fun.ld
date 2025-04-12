@@ -169,6 +169,12 @@ SECTIONS
       PROVIDE(_data_lma = .);
     } >FLASH AT>FLASH
 
+    .bootloader.data : 
+    {
+      . = ALIGN(4);
+      *(.bootloader.data)
+    } >RAM AT>FLASH
+
     .data :
     {
       . = ALIGN(4);

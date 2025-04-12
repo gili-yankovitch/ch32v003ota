@@ -13,9 +13,9 @@
 #define OTA_START_ADDR 0x1000
 #define OTA_END_ADDR   0x4000
 
-static uint8_t iv[AES_BLOCKLEN] = { 0 };
+static uint8_t __attribute__(( section(".bootloader.data") )) iv[AES_BLOCKLEN] = { 0 };
 
-static struct AES_ctx ctx;
+static struct AES_ctx __attribute__(( section(".bootloader.data") )) ctx;
 static const uint8_t __attribute__(( used, section(".topflash.rodata") )) status[] = "VMCSE";
 
 void __attribute__(( section(".topflash.text") )) updateInit()
@@ -132,7 +132,7 @@ void __attribute__(( noinline, used, section(".topflash.text") )) ota()
     }
 }
 
-int main() __attribute__((used));
+void __attribute__((used)) _startup();
 
 void __attribute__(( section(".topflash.text") )) boot()
 {
@@ -144,5 +144,5 @@ void __attribute__(( section(".topflash.text") )) boot()
     ota();
 
     // Call main()
-    main();
+    _startup();
 }
